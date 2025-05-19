@@ -1,0 +1,71 @@
+# Agentic Vulnerability Management AI - Scaffold
+
+# 1. Backend API (FastAPI)
+from fastapi import FastAPI, UploadFile, File
+from pydantic import BaseModel
+from typing import List
+import uvicorn
+
+app = FastAPI()
+
+class Vulnerability(BaseModel):
+    cve_id: str
+    cvss_score: float
+    asset: str
+    description: str
+
+@app.post("/analyze")
+async def analyze_vulnerabilities(vulns: List[Vulnerability]):
+    from agents import prioritize_vulnerabilities, suggest_remediations
+    priorities = prioritize_vulnerabilities(vulns)
+    remediations = suggest_remediations(priorities)
+    return {"prioritized": priorities, "remediations": remediations}
+
+# 2. Agent Logic (agents.py)
+from typing import List, Dict
+from langchain.chat_models import ChatOpenAI
+from langchain.schema import HumanMessage
+
+llm = ChatOpenAI(model_name="gpt-4")
+
+def prioritize_vulnerabilities(vulns: List[dict]) -> List[dict]:
+    sorted_vulns = sorted(vulns, key=lambda x: x['cvss_score'], reverse=True)
+    return sorted_vulns[:10]  # Top 10 risks
+
+def suggest_remediations(vulns: List[dict]) -> List[Dict]:
+    messages = [
+        HumanMessage(content=f"Suggest remediation for: {v['cve_id']} - {v['description']}")
+        for v in vulns
+    ]
+    results = [llm([msg]).content for msg in messages]
+    return [
+        {"cve_id": v['cve_id'], "remediation": r}
+        for v, r in zip(vulns, results)
+    ]
+
+# 3. Dockerfile
+# Use Python base image
+FROM python:3.10-slim
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# 4. requirements.txt
+fastapi
+uvicorn
+langchain
+openai
+pydantic
+
+# 5. Sample curl test:
+# curl -X POST http://localhost:8000/analyze \
+# -H "Content-Type: application/json" \
+# -d '[{"cve_id":"CVE-2023-1234","cvss_score":9.8,"asset":"web01","description":"Remote code execution in Apache"}]'
+
+# 6. .env (not committed)
+# OPENAI_API_KEY=your-key-here
+
+# 7. To run locally:
+# docker build -t vuln-agent .
+# docker run -p 8000:8000 --env-file .env vuln-agent
