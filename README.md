@@ -48,14 +48,14 @@ Part 4: Code Skeleton (Simplified MVP)
 
 How to RUn the code "
 
-# 5. Sample curl test:
-# curl -X POST http://localhost:8000/analyze \
-# -H "Content-Type: application/json" \
-# -d '[{"cve_id":"CVE-2023-1234","cvss_score":9.8,"asset":"web01","description":"Remote code execution in Apache"}]'
+ 5. Sample curl test:
+curl -X POST http://localhost:8000/analyze \
+-H "Content-Type: application/json" \
+-d '[{"cve_id":"CVE-2023-1234","cvss_score":9.8,"asset":"web01","description":"Remote code execution in Apache"}]'
 
-# 6. .env (not committed)
-# OPENAI_API_KEY=your-key-here
+6. .env (not committed)
+OPENAI_API_KEY=your-key-here
 
-# 7. To run locally:
-# docker build -t vuln-agent .
-# docker run -p 8000:8000 --env-file .env vuln-agent
+7. To run locally:
+docker build -t vuln-agent .
+docker run -p 8000:8000 --env-file .env vuln-agent
