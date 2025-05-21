@@ -17,6 +17,15 @@ Remediation Suggestions or Automation
 Human-in-the-loop Feedback & Reporting
 
 
+Step 1: Agent ingests latest Nessus scan
+Step 2: Threat Intel Agent checks if any CVEs are on CISA KEV
+Step 3: Risk Engine scores & ranks issues
+Step 4: Remediation Agent checks KB for fixes
+Step 5: Agent creates ticket in Jira & notifies Slack
+Step 6 (optional): Ansible playbook patches issue
+Step 7: Post-remediation scan validates fix
+
+
 Part 2: Architecture Blueprint
 🧱 System Components:
 Component	Description
@@ -46,7 +55,7 @@ Deployment	Docker, Kubernetes, AWS ECS/Lambda
 Part 4: Code Skeleton (Simplified MVP)
 
 
-How to RUn the code "
+How to Run the code "
 
  5. Sample curl test:
 curl -X POST http://localhost:8000/analyze \
